@@ -1,24 +1,50 @@
 package com.track.android;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import com.baidu.location.BDLocation;
-import com.baidu.location.BDLocationListener;
-import com.baidu.location.LocationClient;
-import com.baidu.location.LocationClientOption;
-import com.baidu.location.LocationClientOption.LocationMode;
+import com.baidu.mapapi.model.LatLng;
+import com.baidu.mapapi.search.geocode.GeoCodeResult;
+import com.baidu.mapapi.search.geocode.GeoCoder;
+import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
+import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.baidu.mapapi.utils.CoordinateConverter;
+import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.SystemClock;
 import android.util.Log;
 
 public class TrackService extends Service {
-	private LocationClient locationClient;
+	private GeoCoder mSearch = GeoCoder.newInstance();{
+		mSearch.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
+			
+			@Override
+			public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+				LatLng loc = result.getLocation();
+				TrackData data = new TrackData(result.getAddress(), loc.latitude, 
+						loc.longitude, dateString, hour, minute, "", "");
+				DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+				db.insertData(data);
+				db.close();
+			}
+			
+			@Override
+			public void onGetGeoCodeResult(GeoCodeResult result) {
+			}
+		});
+		}
+	private LocationManager locationManager;
 	public TrackService() {
 		Log.d("success", "Service constructors");
 	}
@@ -27,67 +53,86 @@ public class TrackService extends Service {
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-
+	private long lastTime = 0;
+	private String dateString;
+	private int hour;
+	private int minute;
+	boolean isFirstTask = true;
 	Handler handler = new Handler();
-	volatile boolean needRequest = false; 
 	Runnable task = new Runnable() {
 		
 		@Override
 		public void run() {
+			long currentTime = System.currentTimeMillis();
+			Log.i("success", currentTime +":" + lastTime);
+			if (currentTime - lastTime < 10000){
+				return;
+			}
+			lastTime = currentTime;
 			SettingClass settings = new SettingClass(TrackService.this.getApplicationContext());
 			Date date = new Date();
 			long timeBase = date.getTime();
 			Log.d("success", date.toString() + ":loop task running");
-			int ret = locationClient.requestLocation();
-			needRequest = true;
-			Log.d("success", "return: "+ ret);
-			
 			Calendar calendar = Calendar.getInstance(Locale.CHINA);
 			calendar.setTime(date);
 			calendar.set(Calendar.SECOND, 0);
-			int minute = calendar.get(Calendar.MINUTE);
-			calendar.set(Calendar.MINUTE, minute / settings.getTimeInterval()
-					* settings.getTimeInterval());
+			dateString = calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) 
+					+ "-" + calendar.get(Calendar.DAY_OF_MONTH);
+			hour = calendar.get(Calendar.HOUR_OF_DAY);
+			minute = calendar.get(Calendar.MINUTE);
+			minute = minute / settings.getTimeInterval() * settings.getTimeInterval();
+			calendar.set(Calendar.MINUTE, minute);
 			calendar.add(Calendar.MINUTE, settings.getTimeInterval());
 			Log.d("success", "after calculate:" + (calendar.getTimeInMillis() - timeBase));
 			handler.postDelayed(task, calendar.getTimeInMillis() - timeBase);
+			if (isFirstTask){
+				isFirstTask = false;
+				return;
+			}
+			Location location = locationManager.getLastKnownLocation(
+					LocationManager.GPS_PROVIDER);
+			if (location != null){
+				Log.i("success", "lat:" + location.getLatitude() + 
+						":lng:" + location.getLongitude());
+				LatLng src = new LatLng(location.getLatitude(), location.getLongitude());
+				CoordinateConverter converter = new CoordinateConverter();
+				converter.coord(src);
+				converter.from(CoordType.GPS);
+				
+				mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(
+						converter.convert()));
+			}
 		}
 	};
 	
 	@Override
 	public void onCreate() {
-		locationClient = new LocationClient(getApplicationContext());
-		locationClient.registerLocationListener(new BDLocationListener() {
-			
-			@Override
-			public void onReceiveLocation(BDLocation loc) {
-				if (!needRequest)
-					return;
-				Date date = new Date();
-				Calendar calendar = Calendar.getInstance(Locale.CHINA);
-				calendar.setTime(date);
-				int hour = calendar.get(Calendar.HOUR_OF_DAY);
-				int minute = calendar.get(Calendar.MINUTE);
-		        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-				TrackData data = new TrackData(loc.getAddrStr(), loc.getLatitude(), 
-						loc.getLongitude(), df.format(date), hour, minute, 
-						null, null);
-				Log.i("success", "onReceiveLocation:" + data.toString());
-				DatabaseHelper db = new DatabaseHelper(getBaseContext());
-				db.insertData(data);
-				db.close();
-				needRequest = false;
-			}
-		});
-		LocationClientOption option = new LocationClientOption();
-		option.setLocationMode(LocationMode.Hight_Accuracy);
-		option.setIsNeedAddress(true);
-		option.setNeedDeviceDirect(false);
-		option.setScanSpan(5000);
-		locationClient.setLocOption(option);
-		locationClient.start();
-		Log.d("success", "isStarted:" + locationClient.isStarted());
 		Log.d("success", "Service created");
+
+		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, 
+				new LocationListener() {
+					
+					@Override
+					public void onStatusChanged(String provider, int status, Bundle extras) {
+					}
+					
+					@Override
+					public void onProviderEnabled(String provider) {
+					}
+					
+					@Override
+					public void onProviderDisabled(String provider) {
+					}
+					
+					@Override
+					public void onLocationChanged(Location location) {
+						if (location != null)
+							Log.i("success", "lat:" + location.getLatitude() + 
+									":lng:" + location.getLongitude());
+						
+					}
+				});
 		super.onCreate();
 	}
 	
@@ -100,8 +145,6 @@ public class TrackService extends Service {
 	
 	@Override
 	public void onDestroy(){
-		if (locationClient != null && locationClient.isStarted())
-			locationClient.stop();
 		Log.d("success", "Service destroyed");
 	}
 
