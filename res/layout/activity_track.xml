@@ -1,47 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
      xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:background="@color/background"
+    android:background="#ffffff"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<LinearLayout
-   		android:id="@+id/menulinear00"
-   		android:layout_width="fill_parent"
-   		android:layout_height="@dimen/title_height"
-   		android:background="@color/title_background"
-   		android:orientation="horizontal"
-   		android:gravity="center_vertical"
-   		>
-   		<Button
-			android:id="@+id/edit_button"
-		    style="@style/buttonStyle"
-		    android:text="@string/edit_button_name"
-		    android:onClick="onEditButtonClick" />
-        <Button
-			android:id="@+id/delete_button"
-			style="@style/buttonStyle"
-		    android:text="@string/delete_button_name"
-		    android:onClick="onDeleteButtonClick" />
-	</LinearLayout>
-	<ScrollView android:id="@+id/scrollview"
+
+	<ScrollView
+	    android:id="@+id/scrollview"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
+	    android:background="@color/background"
+	    android:alpha="0.85"
 	    android:fadingEdge="vertical"
-	    android:scrollbarStyle="insideOverlay">
+	    android:scrollbarStyle="insideOverlay" >
 	    
-		 
 	    <LinearLayout
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
-            android:paddingTop="@dimen/activity_vertical_padding"
-    		android:paddingBottom="@dimen/activity_vertical_padding"
 	        android:orientation="vertical"
+	        android:paddingBottom="@dimen/activity_vertical_padding"
+	        android:paddingTop="@dimen/activity_vertical_padding"
 	        android:scrollbars="vertical" >
 	        <LinearLayout
 	            android:id="@+id/linearlayout00"
 	            style="@style/sublayoutStyle"
+	            android:layout_marginTop="@dimen/title_height"
 	            android:layout_marginBottom="@dimen/layout_interval"
 	            android:layout_width="fill_parent"
 	            android:layout_height="wrap_content" >
@@ -65,7 +50,7 @@
 	                    android:layout_width="wrap_content"
 	                    android:layout_height="wrap_content"
 	                    android:textSize="@dimen/common_text_size" />
-	                 <EditText
+	            <EditText
 	                    android:id="@+id/location_edit"
 	                    style="@style/infoTextViewStyle"
 	                    android:inputType="textMultiLine|textNoSuggestions"
@@ -77,7 +62,7 @@
 	                    android:textSize="@dimen/common_text_size" />
 	            </LinearLayout>
 	        </LinearLayout>
-	
+	        
 	        <LinearLayout
 	            android:id="@+id/menulinear02"
 	            android:layout_width="fill_parent"
@@ -241,4 +226,27 @@
 	     	</LinearLayout>
 	    </LinearLayout>
 	</ScrollView>
-</LinearLayout>
+
+	<LinearLayout
+	    android:id="@+id/menulinear00"
+	    android:layout_width="fill_parent"
+	    android:layout_height="@dimen/title_height"
+	    android:alpha="0.85"
+	    android:background="@color/title_background"
+	    android:gravity="center_vertical"
+	    android:orientation="horizontal" >
+
+	    <Button
+	        android:id="@+id/edit_button"
+	        style="@style/buttonStyle"
+	        android:onClick="onEditButtonClick"
+	        android:text="@string/edit_button_name" />
+
+	    <Button
+	        android:id="@+id/delete_button"
+	        style="@style/buttonStyle"
+	        android:onClick="onDeleteButtonClick"
+	        android:text="@string/delete_button_name" />
+	</LinearLayout>
+
+</RelativeLayout>

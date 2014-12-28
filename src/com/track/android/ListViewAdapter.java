@@ -21,6 +21,7 @@ public class ListViewAdapter extends BaseAdapter {
 	private ArrayList<TrackData> datas = new ArrayList<TrackData>();
 	private ArrayList<Integer> indexs = new ArrayList<Integer>();
 	private Context context;
+	private OnItemClickListener listener;
 	private boolean isEdit = false;
 	Bitmap bitmap;
 	private Paint paint;
@@ -104,6 +105,14 @@ public class ListViewAdapter extends BaseAdapter {
 				setEdit(true);
 			}
 		});
+    	view.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				if (listener != null)
+					listener.onClick(v, datas.get(position));
+			}
+		});
 		return view;
 	}
 
@@ -114,5 +123,16 @@ public class ListViewAdapter extends BaseAdapter {
 	public void setEdit(boolean isEdit) {
 		this.isEdit = isEdit;
 	}
+	
+	public OnItemClickListener getListener() {
+		return listener;
+	}
 
+	public void setListener(OnItemClickListener listener) {
+		this.listener = listener;
+	}
+
+	interface OnItemClickListener{
+		public void onClick(View v, TrackData data);
+	}
 }

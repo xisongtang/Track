@@ -1,30 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
      xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     
-	android:background="@color/background"
+	android:background="#ffffff"
     >
-<LinearLayout
-    		android:id="@+id/menulinear00"
-    		android:layout_width="fill_parent"
-    		android:layout_height="@dimen/title_height"
-    		android:background="@color/title_background"
-    		android:orientation="horizontal"
-    		android:gravity="center_vertical"
-    		>
-	        <Button
-				android:id="@+id/submit_button"
-			    style="@style/buttonStyle"
-			    android:text="@string/finish_button_name"
-			    android:onClick="onSubmitButtonClick" />
-</LinearLayout>
+
 <ScrollView android:id="@+id/scrollview"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:alpha="0.85"
     android:fadingEdge="vertical"
+    android:background="@color/background"
     android:scrollbarStyle="insideOverlay">
     
 	 
@@ -40,6 +29,7 @@
             android:id="@+id/linearlayout00"
             style="@style/sublayoutStyle"
             android:layout_marginBottom="@dimen/layout_interval"
+            android:layout_marginTop="@dimen/title_height"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" >
 
@@ -218,4 +208,19 @@
     </LinearLayout>
 
 </ScrollView>
+<LinearLayout
+		android:id="@+id/menulinear00"
+		android:layout_width="fill_parent"
+		android:layout_height="@dimen/title_height"
+		android:background="@color/title_background"
+		android:alpha="0.85"
+		android:orientation="horizontal"
+		android:gravity="center_vertical"
+		>
+     <Button
+		android:id="@+id/submit_button"
+	   style="@style/buttonStyle"
+	   android:text="@string/finish_button_name"
+	   android:onClick="onSubmitButtonClick" />
 </LinearLayout>
+</RelativeLayout>
