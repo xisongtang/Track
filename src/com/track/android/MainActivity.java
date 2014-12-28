@@ -26,6 +26,7 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
+import com.track.android.ListViewAdapter.OnItemClickListener;
 import com.track.android.R;
 
 import android.app.Activity;
@@ -136,6 +137,16 @@ public class MainActivity extends Activity {
         dateTextView = (TextView)findViewById(R.id.date_text_view);
         listView = (ListView)findViewById(R.id.listview);
         listViewAdapter = new ListViewAdapter(getBaseContext());
+        listViewAdapter.setListener(new OnItemClickListener() {
+			
+			@Override
+			public void onClick(View v, TrackData data) {
+				Intent intent = new Intent();
+				intent.putExtra("data", data);
+				intent.setClass(getBaseContext(), TrackActivity.class);
+				startActivityForResult(intent, TrackActivity.TRACK_RESULT_CODE);
+			}
+		});
         listView.setAdapter(listViewAdapter);
         listViewLayout = (LinearLayout)findViewById(R.id.listview_layout);
         mapView = (MapView)findViewById(R.id.mapview);
@@ -204,7 +215,7 @@ public class MainActivity extends Activity {
 						ArrayList<LatLng> points = new ArrayList<LatLng>();
 						points.add(markerOptions.getPosition());
 						points.add(((Marker)overlays.get(overlays.size() - 2)).getPosition());
-						line.points(points).color(Color.argb(0xff, 0x75, 0x79, 0x47)).width(4);
+						line.points(points).color(Color.rgb(0x03, 0x16, 0x34)).width(4);
 						map.addOverlay(line);
 		        	}
 		        }
@@ -264,7 +275,6 @@ public class MainActivity extends Activity {
 		public void onMapLongClick(LatLng loc) {
 			mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(loc));
 			type = LONG_CLICK_TRIGGER;
-			Log.i("success", "onMapLongClick");
 		}
     };
     BaiduMap.OnMapClickListener mapClickListener = new OnMapClickListener() {
@@ -312,6 +322,7 @@ public class MainActivity extends Activity {
 			InfoWindow infoWindow = new InfoWindow(view, marker.getPosition(), -47);
 			((TextView)view.findViewById(R.id.window_time)).setText(
 					data.getHour() + ":" + data.getMinute());
+			
 			((TextView)view.findViewById(R.id.window_location)).setText(data.getPlaceName());
 			ImageButton garbageButton = (ImageButton)view.findViewById(R.id.image_button_garbage);
 			garbageButton.setOnClickListener(new OnClickListener() {
@@ -373,7 +384,7 @@ public class MainActivity extends Activity {
 				DatabaseHelper db = new DatabaseHelper(getBaseContext());
 				db.deleteData(tdata);
 				db.close();
-				map.clear();
+				map.clear(); 
 				showOverlays(tdata.getDate());
 			}
 			else{

@@ -5,58 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="horizontal"
     tools:context="com.track.android.MainActivity" >
-
-	<LinearLayout
-	    android:id="@+id/main_title"
-	    android:layout_width="fill_parent"
-	    android:layout_height="@dimen/title_height"
-	    android:background="@color/title_background"
-	    android:gravity="center_vertical" >
-
-		<ImageButton
-		    android:contentDescription="@string/search_button_name"
-		    android:id="@+id/search_button"
-		    style="@style/buttonStyle"
-		    android:onClick="onSearchButtonClick"
-		    android:color="@drawable/button_text"
-		    android:src="@drawable/search_icons" />
-		<ImageButton
-		    android:contentDescription="@string/add_button_name"
-		    android:id="@+id/add_button"
-		    style="@style/buttonStyle"
-		    android:onClick="onAddButtonClick"
-		    android:color="@drawable/button_text"
-		    android:src="@drawable/plus" />
-		<ImageButton
-		    android:contentDescription="@string/delete_button_name"
-		    android:id="@+id/delete_button"
-		    style="@style/buttonStyle"
-		    android:layout_width="26dp"
-		    android:scaleType="centerInside"
-		    android:onClick="onDeleteButtonClick"
-		    android:color="@drawable/button_text"
-		    android:src="@drawable/minus" />
-
-		<TextView
-		    android:id="@+id/date_text_view"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:paddingLeft="30dp"
-		    android:text="dsfsdfsdf"
-		    android:textColor="@color/title_foreground_color"
-		    android:textSize="@dimen/common_text_size" />
-
-		</LinearLayout>
 		
-
 	<LinearLayout
 	    android:id="@+id/map"
 	    android:layout_width="fill_parent"
 	    android:layout_height="fill_parent"
-	    android:layout_below="@id/main_title"
+	    android:layout_alignParentTop="true"
 	    android:background="#ffffffff"
 	    android:orientation="vertical" >
-
 
 		<com.baidu.mapapi.map.MapView
 		    android:id="@+id/mapview"
@@ -66,6 +22,60 @@
 		</com.baidu.mapapi.map.MapView>
 
 	</LinearLayout>
+
+	<RelativeLayout
+	    android:id="@+id/main_title"
+	    android:layout_width="fill_parent"
+	    android:layout_height="@dimen/title_height"
+	    android:alpha="0.85"
+	    android:background="@color/title_background"
+	    android:gravity="center_vertical" >
+
+	    <TextView
+	        android:id="@+id/date_text_view"
+	        android:layout_width="240dp"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_centerVertical="true"
+	        android:gravity="center_horizontal"
+	        android:textColor="@color/title_foreground_color"
+	        android:textSize="@dimen/common_text_size" />
+
+	    <ImageButton
+	        android:id="@+id/search_button"
+	        style="@style/buttonStyle"
+	        android:layout_alignParentRight="true"
+	        android:layout_centerVertical="true"
+	        android:contentDescription="@string/search_button_name"
+	        android:onClick="onSearchButtonClick"
+	        android:src="@drawable/search_icons"
+	        android:color="@drawable/button_text" />
+
+	    <ImageButton
+	        android:id="@+id/delete_button"
+	        style="@style/buttonStyle"
+	        android:layout_width="26dp"
+	        android:layout_centerVertical="true"
+	        android:layout_toRightOf="@+id/add_button"
+	        android:contentDescription="@string/delete_button_name"
+	        android:onClick="onDeleteButtonClick"
+	        android:scaleType="centerInside"
+	        android:src="@drawable/minus"
+	        android:color="@drawable/button_text" />
+
+	    <ImageButton
+	        android:id="@+id/add_button"
+	        style="@style/buttonStyle"
+	        android:layout_width="26dp"
+	        android:layout_alignParentLeft="true"
+	        android:layout_centerVertical="true"
+	        android:contentDescription="@string/add_button_name"
+	        android:onClick="onAddButtonClick"
+	        android:scaleType="centerInside"
+	        android:src="@drawable/plus"
+	        android:color="@drawable/button_text" />
+
+	</RelativeLayout>
 
 	<LinearLayout
 	    android:id="@+id/menu"
@@ -95,10 +105,11 @@
 
 	<LinearLayout
 	    android:id="@+id/listview_layout"
-	    android:layout_width="204dp"
+	    android:layout_width="230dp"
 	    android:paddingLeft="1dp"
 	    android:paddingRight="1dp"
 	    android:visibility="gone"
+	    android:alpha="0.85"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentLeft="true"
 	    android:layout_below="@+id/main_title"
