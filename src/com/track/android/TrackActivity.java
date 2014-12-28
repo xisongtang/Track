@@ -1,5 +1,10 @@
 package com.track.android;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import com.track.android.R;
 
 import android.app.Activity;
@@ -8,11 +13,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -31,6 +36,7 @@ public class TrackActivity extends Activity {
 	private TimePicker editTimePicker;
 	private ImageAdapter imageAdapter;
 	private final int IMAGE_CODE = 0;
+	private final int CAMERA_CODE = 1;
 	private boolean isChanged = false;
 	public final static int TRACK_RESULT_CODE = 0xfff;
 	public final static int ACTION_DELETE_CODE = -1;
@@ -52,7 +58,9 @@ public class TrackActivity extends Activity {
 		textView = (TextView)findViewById(R.id.text_record);
 		addButton = (Button)findViewById(R.id.add_button);
 		takePhotoButton = (Button)findViewById(R.id.takephoto_button);
-		imageAdapter = new ImageAdapter(this, getAssets());
+		imageAdapter = new ImageAdapter(this);
+		String photos = data.getPhotos();
+		imageAdapter.addImages(photos);
 		editButton = (Button)findViewById(R.id.edit_button);
 		editText = (EditText)findViewById(R.id.textarea);
 		locationTextView = (TextView)findViewById(R.id.location);
@@ -66,80 +74,10 @@ public class TrackActivity extends Activity {
 		timeTextView.setText(data.getHour() + ":" + data.getMinute());
 		locationTextView.setText(data.getPlaceName());
 		textView.setText(data.getDescription());
-		editButton.setOnClickListener(new OnClickListener(){
-			@Override
-			public void onClick(View v){
-				if (textView.getVisibility() == View.VISIBLE)
-				{
-					isChanged = true;
-					CharSequence str = textView.getText();
-					editText.setText(str);
-					textView.setVisibility(View.GONE);
-					editText.setVisibility(View.VISIBLE);
-					addButton.setVisibility(View.VISIBLE);
-					takePhotoButton.setVisibility(View.VISIBLE);
-					locationTextView.setVisibility(View.GONE);
-					timeTextView.setVisibility(View.GONE);
-					editLocationText.setVisibility(View.VISIBLE);
-					editTimePicker.setVisibility(View.VISIBLE);
-					editLocationText.setText(locationTextView.getText());
-					String timeString = timeTextView.getText().toString();
-					String strs[] = timeString.split(":");
-					int hour = Integer.valueOf(strs[0]);
-					int minute = Integer.valueOf(strs[1]);
-					editTimePicker.setCurrentHour(hour);
-					editTimePicker.setCurrentMinute(minute);
-					editButton.setText("完成");
-				}
-				else
-				{
-					CharSequence str = editText.getText();
-					textView.setText(str);
-					editText.setVisibility(View.GONE);
-					textView.setVisibility(View.VISIBLE);
-					addButton.setVisibility(View.GONE);
-					takePhotoButton.setVisibility(View.GONE);
-					locationTextView.setVisibility(View.VISIBLE);
-					timeTextView.setVisibility(View.VISIBLE);
-					editLocationText.setVisibility(View.GONE);
-					editTimePicker.setVisibility(View.GONE);
-					locationTextView.setText(editLocationText.getText());
-					int hour = editTimePicker.getCurrentHour();
-					int minute = editTimePicker.getCurrentMinute();
-					timeTextView.setText(hour + ":" + minute);
-					editButton.setText("编辑");
-				}
-					
-			}
-			
-		});
-		
-		takePhotoButton.setOnClickListener(new OnClickListener(){
 
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				startActivity(intent);
-			}
-			
-		});
-		
-		
-		addButton.setOnClickListener(new OnClickListener(){
-
-			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
-				Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-				intent.addCategory(Intent.CATEGORY_OPENABLE);
-				intent.setType("image/*");
-				startActivityForResult(intent, IMAGE_CODE);
-			}
-			
-		});
 	}
 	public static final int DIALOG_ID = 0;
+	
 	public void onDeleteButtonClick(View v){
 		new AlertDialog.Builder(this).setTitle("确认删除吗？") 
 	    .setIcon(android.R.drawable.ic_dialog_info) 
@@ -148,16 +86,82 @@ public class TrackActivity extends Activity {
 	        public void onClick(DialogInterface dialog, int which) {
 	        	Intent intent = new Intent(getIntent());
 	        	intent.putExtra(ACTION_STRING, ACTION_DELETE_CODE);
-	        	setResult(RESULT_OK, getIntent());
+	        	setResult(RESULT_OK, intent);
 	        	TrackActivity.this.finish();
-	        } 
-	    }) 
+	        }
+	    })
 	    .setNegativeButton("返回", new DialogInterface.OnClickListener() {
 	        @Override 
 	        public void onClick(DialogInterface dialog, int which) {
 	        } 
 	    }).show(); 
 	}
+	
+	public void onEditButtonClick(View v){
+		if (textView.getVisibility() == View.VISIBLE)
+		{
+			isChanged = true;
+			CharSequence str = textView.getText();
+			editText.setText(str);
+			textView.setVisibility(View.GONE);
+			editText.setVisibility(View.VISIBLE);
+			addButton.setVisibility(View.VISIBLE);
+			takePhotoButton.setVisibility(View.VISIBLE);
+			locationTextView.setVisibility(View.GONE);
+			timeTextView.setVisibility(View.GONE);
+			editLocationText.setVisibility(View.VISIBLE);
+			editTimePicker.setVisibility(View.VISIBLE);
+			editLocationText.setText(locationTextView.getText());
+			String timeString = timeTextView.getText().toString();
+			String strs[] = timeString.split(":");
+			int hour = Integer.valueOf(strs[0]);
+			int minute = Integer.valueOf(strs[1]);
+			editTimePicker.setCurrentHour(hour);
+			editTimePicker.setCurrentMinute(minute);
+			imageAdapter.setEdit(true);
+			editButton.setText("完成");
+		}
+		else
+		{
+			CharSequence str = editText.getText();
+			textView.setText(str);
+			editText.setVisibility(View.GONE);
+			textView.setVisibility(View.VISIBLE);
+			addButton.setVisibility(View.GONE);
+			takePhotoButton.setVisibility(View.GONE);
+			locationTextView.setVisibility(View.VISIBLE);
+			timeTextView.setVisibility(View.VISIBLE);
+			editLocationText.setVisibility(View.GONE);
+			editTimePicker.setVisibility(View.GONE);
+			locationTextView.setText(editLocationText.getText());
+			int hour = editTimePicker.getCurrentHour();
+			int minute = editTimePicker.getCurrentMinute();
+			timeTextView.setText(hour + ":" + minute);
+			imageAdapter.setEdit(false);
+			editButton.setText("编辑");
+		}
+			
+	}
+	public void onAddButtonClick(View v){
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("image/*");
+		startActivityForResult(intent, IMAGE_CODE);
+	}
+	
+	Uri cameraUri;
+	public void onPhotoButtonClick(View v){
+		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss", Locale.CHINA);
+		File DCIM = Environment.getExternalStoragePublicDirectory(
+				Environment.DIRECTORY_DCIM);
+		File out = new File(DCIM.getAbsolutePath() + "/Camera/" + df.format(
+				new Date()) + ".jpg");
+		cameraUri = Uri.fromFile(out);
+		intent.putExtra(MediaStore.EXTRA_OUTPUT, cameraUri);
+		startActivityForResult(intent, CAMERA_CODE);
+	}
+	
 	protected void onActivityResult(int requestCode, int resultCode, Intent data){
 		if (resultCode != RESULT_OK) {
 			Log.e("error","ActivityResult resultCode error");
@@ -167,6 +171,9 @@ public class TrackActivity extends Activity {
 			Uri originalUri = data.getData();
 			Log.i("success", "Uri: " + originalUri.toString());
 			imageAdapter.addImage(originalUri);
+		}
+		else if (requestCode == CAMERA_CODE){
+			imageAdapter.addImage(cameraUri);
 		}
 	}
 	
@@ -192,6 +199,8 @@ public class TrackActivity extends Activity {
 			data.setHour(hour);
 			data.setMinute(minute);
 			data.setDescription(textView.getText().toString());
+			data.setPhotos(imageAdapter.getImagesString());
+			Log.i("success", data.toString());
 			intent.putExtra("data", data);
 			intent.putExtra(TrackActivity.ACTION_STRING, TrackActivity.ACTION_CHANGE_CODE);
 			setResult(RESULT_OK, intent);

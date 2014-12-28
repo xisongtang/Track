@@ -1,9 +1,12 @@
 package com.track.android;
 
+import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-
 import com.baidu.mapapi.model.LatLng;
 import com.baidu.mapapi.search.geocode.GeoCodeResult;
 import com.baidu.mapapi.search.geocode.GeoCoder;
@@ -16,13 +19,14 @@ import com.baidu.mapapi.utils.CoordinateConverter.CoordType;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
+import android.os.Looper;
 import android.util.Log;
 
 public class TrackService extends Service {
@@ -31,10 +35,39 @@ public class TrackService extends Service {
 			
 			@Override
 			public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
+				if (result == null)
+					return;
 				LatLng loc = result.getLocation();
+				if (loc == null)
+					return;
 				TrackData data = new TrackData(result.getAddress(), loc.latitude, 
 						loc.longitude, dateString, hour, minute, "", "");
+				PhotoGetter photoGetter = new PhotoGetter();
 				DatabaseHelper db = new DatabaseHelper(getApplicationContext());
+				TrackData last = db.selectLatestData(dateString, hour, minute);
+				//计算时间间隔的开始时间
+				Date lastDate;
+				if (last == null){
+					SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.CHINA);
+					try {
+						lastDate = df.parse(dateString);
+					} catch (ParseException e) {
+						lastDate = new Date();
+						e.printStackTrace();
+					}					
+				}
+				else{
+					lastDate = last.getDateType();
+				}
+				//计算时间间隔的结束时间
+				Date currentDate = data.getDateType();
+				ArrayList<File> files = (ArrayList<File>) photoGetter.getPhotosDuringDates(lastDate, currentDate);
+				String photoString = "";
+				for (File file:files){
+					photoString += file.toURI() + ";";
+				}
+				data.setPhotos(photoString);
+				Log.i("success", photoString + "...");
 				db.insertData(data);
 				db.close();
 			}
@@ -44,6 +77,29 @@ public class TrackService extends Service {
 			}
 		});
 		}
+	private LocationListener locationListener = new LocationListener() {
+		
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+		
+		@Override
+		public void onProviderEnabled(String provider) {
+		}
+		
+		@Override
+		public void onProviderDisabled(String provider) {
+		}
+		
+		@Override
+		public void onLocationChanged(Location location) {
+			if (location != null)
+				Log.i("success", "in call-back function::lat:" + location.getLatitude() + 
+						":lng:" + location.getLongitude());
+			else
+				Log.i("success", "in call-back function::null");
+		}
+	};
 	private LocationManager locationManager;
 	public TrackService() {
 		Log.d("success", "Service constructors");
@@ -64,12 +120,12 @@ public class TrackService extends Service {
 		@Override
 		public void run() {
 			long currentTime = System.currentTimeMillis();
-			Log.i("success", currentTime +":" + lastTime);
-			if (currentTime - lastTime < 10000){
+			//Log.i("success", currentTime +":" + lastTime);
+			if (currentTime - lastTime < 1000){
 				return;
 			}
 			lastTime = currentTime;
-			SettingClass settings = new SettingClass(TrackService.this.getApplicationContext());
+			SettingData settings = new SettingData(TrackService.this.getApplicationContext());
 			Date date = new Date();
 			long timeBase = date.getTime();
 			Log.d("success", date.toString() + ":loop task running");
@@ -89,6 +145,19 @@ public class TrackService extends Service {
 				isFirstTask = false;
 				return;
 			}
+			if (!settings.isOn())
+				return;
+			if (hour < settings.getStartHour() || hour >= settings.getEndHour())
+				return;
+			Criteria criteria = new Criteria();
+			criteria.setAccuracy(Criteria.ACCURACY_MEDIUM);
+			criteria.setAltitudeRequired(false);
+			criteria.setBearingRequired(false);
+			criteria.setCostAllowed(false);
+			criteria.setPowerRequirement(Criteria.POWER_LOW);
+			String provider = locationManager.getBestProvider(criteria, true);
+			locationManager.requestSingleUpdate(provider, locationListener,
+					Looper.myLooper());
 			Location location = locationManager.getLastKnownLocation(
 					LocationManager.GPS_PROVIDER);
 			if (location != null){
@@ -98,41 +167,18 @@ public class TrackService extends Service {
 				CoordinateConverter converter = new CoordinateConverter();
 				converter.coord(src);
 				converter.from(CoordType.GPS);
-				
 				mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(
 						converter.convert()));
 			}
+			else
+				Log.e("success", "null location");
 		}
 	};
 	
 	@Override
 	public void onCreate() {
 		Log.d("success", "Service created");
-
 		locationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 5000, 0, 
-				new LocationListener() {
-					
-					@Override
-					public void onStatusChanged(String provider, int status, Bundle extras) {
-					}
-					
-					@Override
-					public void onProviderEnabled(String provider) {
-					}
-					
-					@Override
-					public void onProviderDisabled(String provider) {
-					}
-					
-					@Override
-					public void onLocationChanged(Location location) {
-						if (location != null)
-							Log.i("success", "lat:" + location.getLatitude() + 
-									":lng:" + location.getLongitude());
-						
-					}
-				});
 		super.onCreate();
 	}
 	

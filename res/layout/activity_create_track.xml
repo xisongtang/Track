@@ -4,6 +4,8 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    
+	android:background="@color/background"
     >
 <LinearLayout
     		android:id="@+id/menulinear00"
@@ -11,39 +13,33 @@
     		android:layout_height="@dimen/title_height"
     		android:background="@color/title_background"
     		android:orientation="horizontal"
+    		android:gravity="center_vertical"
     		>
 	        <Button
 				android:id="@+id/submit_button"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:text="提交"
+			    style="@style/buttonStyle"
+			    android:text="@string/finish_button_name"
 			    android:onClick="onSubmitButtonClick" />
-	        <Button
-				android:id="@+id/cancel_button"
-			    android:layout_width="wrap_content"
-			    android:layout_height="wrap_content"
-			    android:text="取消"
-			    android:onClick="onCancelButtonClick" />
 </LinearLayout>
 <ScrollView android:id="@+id/scrollview"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:fadingEdge="vertical"
-    android:paddingBottom="30dp"
-    android:paddingLeft="35dp"
-    android:paddingRight="35dp"
-    android:paddingTop="30dp"
-    android:scrollbarStyle="outsideInset">
+    android:scrollbarStyle="insideOverlay">
     
 	 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+	    android:paddingTop="@dimen/activity_vertical_padding"
+	    android:paddingBottom="@dimen/activity_vertical_padding"
         android:orientation="vertical"
         android:scrollbars="vertical" >
 
         <LinearLayout
             android:id="@+id/linearlayout00"
+            style="@style/sublayoutStyle"
+            android:layout_marginBottom="@dimen/layout_interval"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content" >
 
@@ -51,14 +47,13 @@
                 android:id="@+id/textView1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="位置："
-                android:textSize="22sp" />
+                android:text="@string/location_name_item_title"
+                android:textSize="@dimen/common_text_size" />
 
             <LinearLayout
                 android:id="@+id/linearlayout001"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="right"
                 android:gravity="right" >
 
                 <EditText
@@ -66,10 +61,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"
-                    android:text="loaction"
-                    android:inputType="text"
-                    android:gravity="left|top"
-                    android:textSize="22sp" />
+                    style="@style/infoTextViewStyle"
+					android:inputType="textMultiLine|textNoSuggestions"
+                    android:gravity="right|center_vertical"
+                    android:textSize="@dimen/common_text_size" />
             </LinearLayout>
         </LinearLayout>
 
@@ -77,14 +72,15 @@
             android:id="@+id/menulinear02"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" >
+            android:layout_marginBottom="@dimen/layout_interval"
+            style="@style/sublayoutStyle" >
 
             <TextView
                 android:id="@+id/TextView02"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="日期："
-                android:textSize="22sp" />
+                android:text="@string/date_item_title"
+                android:textSize="@dimen/common_text_size" />
 
             <LinearLayout
                 android:id="@+id/linearlayout011"
@@ -96,23 +92,23 @@
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:text="time"
-                    android:textSize="22sp" />
+                    style="@style/infoTextViewStyle"
+                    android:textSize="@dimen/common_text_size" />
             </LinearLayout>
         </LinearLayout>
 		<LinearLayout
             android:id="@+id/menulinear03"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" >
+            android:layout_marginBottom="@dimen/layout_interval"
+            style="@style/sublayoutStyle" >
 
             <TextView
                 android:id="@+id/TextView03"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="时间："
-                android:textSize="22sp" />
+                android:text="@string/time_item_title"
+                android:textSize="@dimen/common_text_size" />
 
             <LinearLayout
                 android:id="@+id/linearlayout030"
@@ -131,7 +127,8 @@
             android:id="@+id/LinearLayout02"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginBottom="@dimen/layout_interval"
+            style="@style/sublayoutStyle"
             android:baselineAligned="false"
             android:orientation="vertical" >
 
@@ -139,26 +136,27 @@
                 android:id="@+id/linearlayout021"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:background="@drawable/layout_head_shape"
+                android:minHeight="@dimen/layout_minheight"
                 android:orientation="horizontal" >
 
                 <TextView
                     android:id="@+id/TextView01"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="点滴记录"
-                    android:textSize="22sp" />
+                    android:text="@string/detail_item_title"
+                    android:textSize="@dimen/common_text_size" />
             </LinearLayout>
 
             <EditText
                 android:id="@+id/textarea"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="118dp"
                 android:gravity="left|top"
-                android:hint="content"
+                android:hint="@string/detail_content_hint"
                 android:inputType="textMultiLine|textNoSuggestions"
-                android:textSize="17dp"
+                android:textSize="@dimen/common_text_size"
                 android:visibility="visible" />
         </LinearLayout>
 
@@ -166,54 +164,54 @@
             android:id="@+id/linearlayout03"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
+            android:layout_marginBottom="@dimen/layout_interval"
+            style="@style/sublayoutStyle"
             android:orientation="vertical" >
 
             <LinearLayout
                 android:id="@+id/linearlayout031"
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content" >
+                android:layout_height="wrap_content" 
+                android:gravity="center_vertical"
+                android:background="@drawable/layout_head_shape"
+                android:minHeight="@dimen/layout_minheight"
+                >
 
                 <TextView
                     android:id="@+id/TextView0311"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="精彩瞬间"
-                    android:textSize="22sp" />
+                    android:text="@string/photo_item_title"
+                    android:textSize="@dimen/common_text_size" />
 
                 <LinearLayout
                     android:id="@+id/linearlayout0311"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="right"
                     android:gravity="right" >
 
                     <Button
                         android:id="@+id/add_button"
-                        style="?android:attr/buttonStyleSmall"
+                        style="@style/buttonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right"
-                        android:text="添加" />
+                        android:layout_margin="1dp"
+                        android:onClick="onAddButtonClick"
+                        android:text="@string/add_button_name" />
                     <Button
                         android:id="@+id/takephoto_button"
-                        style="?android:attr/buttonStyleSmall"
+                        style="@style/buttonStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="right"
-                        android:text="拍照" />
+                        android:layout_margin="1dp"
+                        android:onClick="onPhotoButtonClick"
+                        android:text="@string/photo_button_name" />
                 </LinearLayout>
             </LinearLayout>
 
             <com.track.android.FixedGridView
                 android:id="@+id/photos"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:horizontalSpacing="2dp"
-                android:numColumns="auto_fit"
-                android:scrollbars="none"
-                android:verticalSpacing="2dp" >
+                style="@style/fixedGridViewStyle" >
             </com.track.android.FixedGridView>
 
         </LinearLayout>

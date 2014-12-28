@@ -14,16 +14,40 @@
 	    android:gravity="center_vertical" >
 
 		<ImageButton
+		    android:contentDescription="@string/search_button_name"
 		    android:id="@+id/search_button"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:adjustViewBounds="true"
-		    android:cropToPadding="false"
-		    android:scaleType="fitCenter"
+		    style="@style/buttonStyle"
 		    android:onClick="onSearchButtonClick"
+		    android:color="@drawable/button_text"
 		    android:src="@drawable/search_icons" />
+		<ImageButton
+		    android:contentDescription="@string/add_button_name"
+		    android:id="@+id/add_button"
+		    style="@style/buttonStyle"
+		    android:onClick="onAddButtonClick"
+		    android:color="@drawable/button_text"
+		    android:src="@drawable/plus" />
+		<ImageButton
+		    android:contentDescription="@string/delete_button_name"
+		    android:id="@+id/delete_button"
+		    style="@style/buttonStyle"
+		    android:layout_width="26dp"
+		    android:scaleType="centerInside"
+		    android:onClick="onDeleteButtonClick"
+		    android:color="@drawable/button_text"
+		    android:src="@drawable/minus" />
+
+		<TextView
+		    android:id="@+id/date_text_view"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:paddingLeft="30dp"
+		    android:text="dsfsdfsdf"
+		    android:textColor="@color/title_foreground_color"
+		    android:textSize="@dimen/common_text_size" />
 
 		</LinearLayout>
+		
 
 	<LinearLayout
 	    android:id="@+id/map"
@@ -32,6 +56,7 @@
 	    android:layout_below="@id/main_title"
 	    android:background="#ffffffff"
 	    android:orientation="vertical" >
+
 
 		<com.baidu.mapapi.map.MapView
 		    android:id="@+id/mapview"
@@ -60,21 +85,30 @@
 	        android:paddingLeft="5dp"
 	        android:paddingRight="5dp"
 	        android:paddingTop="15dp" >
-
-	        <LinearLayout
-	            android:layout_width="fill_parent"
-	            android:layout_height="wrap_content"
-	            android:layout_marginBottom="15dp"
-	            android:gravity="center"
-	            android:orientation="horizontal" >
-
-	            <DatePicker
-	                android:id="@+id/datepicker"
-	                android:layout_width="fill_parent"
-	                android:layout_height="match_parent"
-	                android:calendarViewShown="false" />
-	        </LinearLayout>
+            <DatePicker
+                android:id="@+id/datepicker"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:calendarViewShown="false" />
 	    </LinearLayout>
 	</LinearLayout>
 
+	<LinearLayout
+	    android:id="@+id/listview_layout"
+	    android:layout_width="204dp"
+	    android:paddingLeft="1dp"
+	    android:paddingRight="1dp"
+	    android:visibility="gone"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentLeft="true"
+	    android:layout_below="@+id/main_title"
+	    android:background="@drawable/listview_layout_shape" >
+	    
+		<ListView
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:id="@+id/listview"
+		  >
+		</ListView>
+	</LinearLayout>
 </RelativeLayout>

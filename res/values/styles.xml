@@ -16,5 +16,35 @@
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+	<style name="fixedGridViewStyle" parent="android:style/Widget.GridView">
+	    <item name="android:layout_width">match_parent</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:horizontalSpacing">2dp</item>
+		<item name="android:numColumns">auto_fit</item>
+		<item name="android:scrollbars">none</item>
+		<item name="android:verticalSpacing">2dp</item>
+		<item name="android:paddingTop">@dimen/layout_vertical_padding</item>
+		<item name="android:paddingBottom">@dimen/layout_vertical_padding</item>
+	</style>
+	<style name="buttonStyle" parent="android:style/Widget.Button">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/button_background</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:minHeight">26dp</item>
+        <item name="android:textColor">@drawable/button_text</item>
+        <item name="android:textSize">@dimen/common_text_size</item>
+    </style>
+    <style name="sublayoutStyle" parent="android:style/Widget.Button">
+        <item name="android:background">@drawable/layout_shape</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/layout_minheight</item>
+        <item name="android:paddingLeft">@dimen/layout_horizontal_padding</item>
+        <item name="android:paddingRight">@dimen/layout_horizontal_padding</item>
+    </style>
+    <style name="infoTextViewStyle" parent="android:style/Widget.TextView">
+        <item name="android:maxWidth">200dp</item>
+		<item name="android:gravity">right</item>
+    </style>
 </resources>

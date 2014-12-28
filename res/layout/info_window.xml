@@ -3,25 +3,40 @@
     android:layout_width="100dp"
     android:layout_height="wrap_content"
     android:alpha="0.7"
-    android:background="@drawable/popup"
-    android:orientation="vertical"
-    android:paddingBottom="8dp"
-    android:paddingLeft="2dp"
-    android:paddingRight="2dp"
-    android:paddingTop="2dp" >
+    android:background="@drawable/infowindow_background"
+    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/window_time"
+    <RelativeLayout
+        android:id="@+id/horizontal_linearlayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="12:30"
-        android:textColor="@color/window_info_text_color" />
+        android:layout_height="wrap_content" >
+
+
+        <ImageButton
+            android:id="@+id/image_button_garbage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="2dp"
+            android:background="#00000000"
+            android:gravity="right"
+            android:src="@drawable/garbage" />
+        <TextView
+            android:id="@+id/window_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:textColor="@color/window_info_text_color" />
+
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/window_location"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="北京市"
+        android:maxWidth="200dp"
         android:textColor="@color/window_info_text_color" />
 
 </LinearLayout>

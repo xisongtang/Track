@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="interval">
+        <item >10分钟 </item>
+        <item >20分钟</item>
+        <item >30分钟</item>
+        <item >1小时</item>
+    </string-array>
+    
+    <string-array name="start">
+        <item >5时</item>
+        <item >7时</item>
+        <item >9时</item>
+        <item >11时</item>
+    </string-array>
+    
+    <string-array name="end">
+        <item >18时</item>
+        <item >20时</item>
+        <item >22时</item>
+        <item >24时</item>
+    </string-array>
+    
+</resources>

@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="title_background">#ff222222</color>
+    <color name="title_background">#ff458994</color>
     <color name="grey_background">#ffefefef</color>
-    <color name="window_info_text_color">#ff111111</color>
+    <color name="title_foreground_color">#fffff5f7</color>
+    <color name="pressed_title_foreground_color">#ffefefef</color>
+    <color name="button_background">#ff458994</color>
+    <color name="layout_background">#fffff5f7</color>
+    <color name="background">#ffB2C8BB</color>
+    <color name="map_line_color">#ff757947</color>
+    <color name="window_info_text_color">#fffff5f7</color>
+    <color name="window_info_background_color">#ff725334</color>
+    <color name="layout_border">#ffb0b0b0</color>
 </resources>

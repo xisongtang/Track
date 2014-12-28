@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import com.baidu.mapapi.SDKInitializer;
 import com.baidu.mapapi.map.BaiduMap;
 import com.baidu.mapapi.map.BaiduMap.OnMapClickListener;
 import com.baidu.mapapi.map.BitmapDescriptor;
@@ -37,26 +38,42 @@ import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
 	int displayWidth;
 	private final int DURATION = 500;
 	private LinearLayout menu;
+	private LinearLayout listViewLayout;
 	private MapView mapView;
 	private BaiduMap map;
+	private ListView listView;
+	private ListViewAdapter listViewAdapter;
 	private ArrayList<Overlay> overlays = new ArrayList<Overlay>();
 	private AlphaAnimation disappearAlpha;
 	private AlphaAnimation appearAlpha;
 	private Bitmap bitmap;
+	private TextView dateTextView;
+	private DatePicker datePicker;
+	private TranslateAnimation appearTranslate;
+	private TranslateAnimation disappearTranslate;
 	private Paint paint;
 	{
 		paint = new Paint();
@@ -65,27 +82,41 @@ public class MainActivity extends Activity {
 		paint.setTextSize(20);
 		paint.setAntiAlias(true);
 	}
-	private volatile String resultPlaceName = "";
+	
+	private TrackData dragPointData;
+	private int type;
+	private static int LONG_CLICK_TRIGGER  = 0;
+	private static int DRAG_TRIGGER = 1;
 	private GeoCoder mSearch = GeoCoder.newInstance();{
 	mSearch.setOnGetGeoCodeResultListener(new OnGetGeoCoderResultListener() {
 		
 		@Override
 		public void onGetReverseGeoCodeResult(ReverseGeoCodeResult result) {
-			resultPlaceName = result.getAddress();
-			LatLng loc = result.getLocation();
-			Log.i("success", resultPlaceName + "---");
-			Log.i("success", resultPlaceName + ":");
-			DatePicker datePicker = (DatePicker)menu.findViewById(R.id.datepicker);
-			Intent intent = new Intent();
-			String date = datePicker.getYear() + "-" 
-    				+ (datePicker.getMonth() + 1) + "-"
-    				+ datePicker.getDayOfMonth();
-			intent.putExtra(TrackData.LATITUDE_STRING, loc.latitude);
-			intent.putExtra(TrackData.LONGITUDE_STRING, loc.longitude);
-			intent.putExtra(TrackData.DATE_STRING,date);
-			intent.putExtra(TrackData.PLACENAME_STRING, resultPlaceName);
-			intent.setClass(getBaseContext(), CreateTrackActivity.class);
-			startActivityForResult(intent, CreateTrackActivity.RESULT_CODE);
+			if (result == null || result.getLocation() == null)
+				return;
+			String resultPlaceName = result.getAddress();
+			if (type == LONG_CLICK_TRIGGER){
+				LatLng loc = result.getLocation();
+				DatePicker datePicker = (DatePicker)menu.findViewById(R.id.datepicker);
+				Intent intent = new Intent();
+				String date = datePicker.getYear() + "-" 
+	    				+ (datePicker.getMonth() + 1) + "-"
+	    				+ datePicker.getDayOfMonth();
+				intent.putExtra(TrackData.LATITUDE_STRING, loc.latitude);
+				intent.putExtra(TrackData.LONGITUDE_STRING, loc.longitude);
+				intent.putExtra(TrackData.DATE_STRING,date);
+				intent.putExtra(TrackData.PLACENAME_STRING, resultPlaceName);
+				intent.setClass(getBaseContext(), CreateTrackActivity.class);
+				startActivityForResult(intent, CreateTrackActivity.RESULT_CODE);
+			}
+			else if (type == DRAG_TRIGGER){
+				DatabaseHelper db = new DatabaseHelper(getBaseContext());
+				dragPointData.setPlaceName(resultPlaceName);
+				db.updateData(dragPointData);
+				db.close();
+				map.clear();
+				showOverlays(dragPointData.getDate());
+			}
 		}
 		
 		@Override
@@ -93,21 +124,32 @@ public class MainActivity extends Activity {
 		}
 	});
 	}
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-    	
+    	Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
         super.onCreate(savedInstanceState);
+        SDKInitializer.initialize(getApplicationContext()); 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         startService(new Intent(getApplicationContext(), TrackService.class));
+        dateTextView = (TextView)findViewById(R.id.date_text_view);
+        listView = (ListView)findViewById(R.id.listview);
+        listViewAdapter = new ListViewAdapter(getBaseContext());
+        listView.setAdapter(listViewAdapter);
+        listViewLayout = (LinearLayout)findViewById(R.id.listview_layout);
         mapView = (MapView)findViewById(R.id.mapview);
         map = mapView.getMap();
         menu = (LinearLayout)findViewById(R.id.menu);
-        
+		datePicker = (DatePicker)menu.findViewById(R.id.datepicker);
         bitmap = BitmapFactory.decodeResource(getResources(), 
     			R.drawable.overlay);
         disappearAlpha = new AlphaAnimation(0.8f, 0);
         appearAlpha = new AlphaAnimation(0, 0.8f);
+        appearTranslate = (TranslateAnimation) AnimationUtils.loadAnimation(
+        		getBaseContext(), R.anim.listview_layout_appear);
+        disappearTranslate = (TranslateAnimation) AnimationUtils.loadAnimation(
+        		getBaseContext(), R.anim.listview_layout_disappear);
         disappearAlpha.setDuration(DURATION);
         appearAlpha.setDuration(DURATION);
         map.setOnMapLongClickListener(longClickListener);
@@ -116,7 +158,9 @@ public class MainActivity extends Activity {
         map.setOnMapClickListener(mapClickListener);
         Date date = new Date();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        showOverlays(df.format(date));
+        String dateString = df.format(date);
+        showOverlays(dateString);
+        dateTextView.setText(dateString);
     }
     private void showOverlays(String date){
     	new AsyncTask<String, Integer, ArrayList<TrackData>>() {
@@ -132,6 +176,7 @@ public class MainActivity extends Activity {
 			@Override
 			protected void onPostExecute(ArrayList<TrackData> datas) {
 		    	MapStatusUpdate update;
+		    	listViewAdapter.setDatas(datas);
 				if (datas.size() == 0){
 					map.clear();
 					update = MapStatusUpdateFactory.newLatLng(new LatLng(
@@ -159,7 +204,7 @@ public class MainActivity extends Activity {
 						ArrayList<LatLng> points = new ArrayList<LatLng>();
 						points.add(markerOptions.getPosition());
 						points.add(((Marker)overlays.get(overlays.size() - 2)).getPosition());
-						line.points(points).color(Color.BLUE).width(4);
+						line.points(points).color(Color.argb(0xff, 0x75, 0x79, 0x47)).width(4);
 						map.addOverlay(line);
 		        	}
 		        }
@@ -168,7 +213,17 @@ public class MainActivity extends Activity {
 			}
 		}.execute(date);
     }
-    
+    private boolean isListViewLayoutShowing = false;
+    public void onDeleteButtonClick(View v){
+    	if (!isListViewLayoutShowing){
+	    	isListViewLayoutShowing = true;
+	    	listViewLayout.setVisibility(View.VISIBLE);
+	    	listViewLayout.startAnimation(appearTranslate);
+    	}
+    }
+    public void onAddButtonClick(View v){
+    	Toast.makeText(getBaseContext(), "长按地图添加新的踪迹", Toast.LENGTH_LONG).show();
+    }
     public void onSearchButtonClick(View v){
     	if (menu.getVisibility() == View.GONE)
     	{
@@ -177,7 +232,6 @@ public class MainActivity extends Activity {
     	}
     	else 
     	{
-    		DatePicker datePicker = (DatePicker)menu.findViewById(R.id.datepicker);
     		String date = datePicker.getYear() + "-" 
     				+ (datePicker.getMonth() + 1) + "-"
     				+ datePicker.getDayOfMonth();
@@ -186,6 +240,7 @@ public class MainActivity extends Activity {
     		showOverlays(date);
 	    	menu.startAnimation(disappearAlpha);
     		menu.setVisibility(View.GONE);
+    		dateTextView.setText(date);
     	}
     }
     @Override
@@ -208,6 +263,7 @@ public class MainActivity extends Activity {
 		@Override
 		public void onMapLongClick(LatLng loc) {
 			mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(loc));
+			type = LONG_CLICK_TRIGGER;
 			Log.i("success", "onMapLongClick");
 		}
     };
@@ -220,6 +276,19 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onMapClick(LatLng arg0) {
+			if (isListViewLayoutShowing){
+				isListViewLayoutShowing = false;
+				listViewLayout.startAnimation(disappearTranslate);
+				listViewLayout.setVisibility(View.GONE);
+				if (listViewAdapter.isEdit()){
+					map.clear();
+					String date = datePicker.getYear() + "-" 
+		    				+ (datePicker.getMonth() + 1) + "-"
+		    				+ datePicker.getDayOfMonth();
+					showOverlays(date);
+					listViewAdapter.setEdit(false);
+				}
+			}
 			map.hideInfoWindow();
 		}
 	};
@@ -228,7 +297,7 @@ public class MainActivity extends Activity {
 		@Override
 		public boolean onMarkerClick(final Marker marker) {
 			map.hideInfoWindow();
-			TrackData data = (TrackData)marker.getExtraInfo().getSerializable("data");
+			final TrackData data = (TrackData)marker.getExtraInfo().getSerializable("data");
 			View view = View.inflate(getBaseContext(), R.layout.info_window, null);
 			view.setOnClickListener(new OnClickListener() {
 				
@@ -244,6 +313,18 @@ public class MainActivity extends Activity {
 			((TextView)view.findViewById(R.id.window_time)).setText(
 					data.getHour() + ":" + data.getMinute());
 			((TextView)view.findViewById(R.id.window_location)).setText(data.getPlaceName());
+			ImageButton garbageButton = (ImageButton)view.findViewById(R.id.image_button_garbage);
+			garbageButton.setOnClickListener(new OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					DatabaseHelper db = new DatabaseHelper(getBaseContext());
+					db.deleteData(data);
+					db.close();
+					map.clear();
+					showOverlays(data.getDate());
+				}
+			});
 			map.showInfoWindow(infoWindow);
 			return false;
 		}
@@ -258,14 +339,11 @@ public class MainActivity extends Activity {
 		@Override
 		public void onMarkerDragEnd(Marker marker) {
 			LatLng pos = marker.getPosition();
-			TrackData data = (TrackData)marker.getExtraInfo().getSerializable("data");
-			data.setLatitude(pos.latitude);
-			data.setLongitude(pos.longitude);
-			DatabaseHelper db = new DatabaseHelper(getBaseContext());
-			db.updateData(data);
-			db.close();
-			map.clear();
-			showOverlays(data.getDate());
+			dragPointData = (TrackData)marker.getExtraInfo().getSerializable("data");
+			dragPointData.setLatitude(pos.latitude);
+			dragPointData.setLongitude(pos.longitude);
+			type = DRAG_TRIGGER;
+			mSearch.reverseGeoCode(new ReverseGeoCodeOption().location(pos));
 		}
 		
 		@Override
@@ -307,4 +385,22 @@ public class MainActivity extends Activity {
 			}
 		}
 	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.main, menu);
+    	return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch (item.getItemId()){
+    	case R.id.action_settings:
+    		Log.i("success", "onSettingMenuClick");
+        	Intent intent = new Intent();
+        	intent.setClass(getBaseContext(), SettingActivity.class);
+    		startActivity(intent);
+    		break;
+    	}
+    	return true;
+    }
 }

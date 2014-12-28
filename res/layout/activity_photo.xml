@@ -1,13 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
     <ImageView
+        android:contentDescription="@string/photo_view_description"
         android:id="@+id/imageview"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
          />
 
-</LinearLayout>
+    <ImageButton
+        android:id="@+id/image_button_left"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="#00000000"
+        android:onClick="onLeftButtonClick"
+        android:src="@drawable/left_arrow" />
+    <ImageButton
+        android:id="@+id/image_button_right"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="#00000000"
+        android:onClick="onRightButtonClick"
+        android:src="@drawable/right_arrow" />
+
+</RelativeLayout>

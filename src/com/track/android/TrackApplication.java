@@ -16,4 +16,5 @@ public class TrackApplication extends Application {
 		Log.d("success", "Application onCreate");
 		SDKInitializer.initialize(getApplicationContext()); 
 	}
+	
 }

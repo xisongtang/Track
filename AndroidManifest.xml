@@ -19,9 +19,10 @@
 	<uses-permission android:name="android.permission.READ_PHONE_STATE" />
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 	<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="21" />
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 	
     <application
@@ -68,6 +69,7 @@
         <service android:name="TrackService"></service>
         <service android:name="com.baidu.location.f" android:enabled="true" android:process=":remote">
 </service>
+        <activity android:name="SettingActivity"></activity>
     </application>
 
 </manifest>

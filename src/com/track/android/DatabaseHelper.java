@@ -112,6 +112,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		values.put(TrackData.MINUTE_STRING, data.getMinute());
 		values.put(TrackData.DATE_STRING, data.getDate());
 		values.put(TrackData.DESCRIPTION_STRING, data.getDescription());
+		Log.i("success", "onUpdateData:" + data.getPhotos());
 		values.put(TrackData.PHOTOS_STRING, data.getPhotos());
 		SQLiteDatabase db = getWritableDatabase();
 		String[] strs = new String[]{
@@ -119,5 +120,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 		};
 		db.update(TB_NAME, values, "_id = ?", strs);
 		db.close();
+	}
+	
+	public TrackData selectLatestData(String date, int hour, int minute){
+		ArrayList<TrackData> datas = selectData(date);
+		for (int i = datas.size() - 1; i >= 0; --i){
+			TrackData cur = datas.get(i);
+			if (cur.getHour() < hour ||(cur.getHour() == hour && cur.getMinute() < minute))
+				return cur;
+		}
+		return null;
 	}
 }

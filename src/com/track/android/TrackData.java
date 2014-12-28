@@ -2,6 +2,9 @@ package com.track.android;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class TrackData implements Serializable{
 	private static final long serialVersionUID = 5348856828228763168L;
@@ -99,8 +102,11 @@ public class TrackData implements Serializable{
 		if (str == null)
 			return;
 		String[] strs = str.split(";");
+		photos.clear();
 		for (int i = 0; i != strs.length; ++i)
-			photos.add(strs[i]);
+			if (strs[i].length() != 0){
+				photos.add(strs[i]);
+			}
 	}
 	public String getPhotos(){
 		String ret = "";
@@ -136,4 +142,24 @@ public class TrackData implements Serializable{
 	public void setId(int id) {
 		this.id = id;
 	}
+	
+	public Date getDateType(){
+		Calendar calendar = Calendar.getInstance(Locale.CHINA);
+		String[] strs = date.split("-");
+		int year = Integer.valueOf(strs[0]);
+		int month = Integer.valueOf(strs[1]);
+		int day = Integer.valueOf(strs[2]);
+		calendar.set(Calendar.YEAR, year);
+		calendar.set(Calendar.MONTH, month - 1);
+		calendar.set(Calendar.DAY_OF_MONTH, day);
+		calendar.set(Calendar.HOUR_OF_DAY, hour);
+		calendar.set(Calendar.MINUTE, minute);
+		return calendar.getTime();
+	}
+	
+	@Override
+	public boolean equals(Object o){
+		TrackData data = (TrackData)o;
+		return id == data.id;
+ 	}
 }
