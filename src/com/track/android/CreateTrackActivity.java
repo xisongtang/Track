@@ -47,6 +47,8 @@ public class CreateTrackActivity extends Activity {
 		setResult(RESULT_OK, result);
 		
 		finish();
+		overridePendingTransition(android.R.anim.slide_in_left,
+				android.R.anim.slide_out_right);
 	}
 	public void onAddButtonClick(View v){
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
@@ -96,5 +98,11 @@ public class CreateTrackActivity extends Activity {
 		else if (requestCode == CAMERA_CODE){
 			imageAdapter.addImage(cameraUri);
 		}
+	}
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		overridePendingTransition(android.R.anim.slide_in_left,
+				android.R.anim.slide_out_right);
 	}
 }

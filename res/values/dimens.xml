@@ -2,8 +2,8 @@
     <dimen name="title_height">40dp</dimen>
     <dimen name="common_text_size">18sp</dimen>
     <dimen name="layout_horizontal_padding">8dp</dimen>
-    <dimen name="layout_vertical_padding">6dp</dimen>
-    <dimen name="activity_vertical_padding">8dp</dimen>
+    <dimen name="layout_vertical_padding">12dp</dimen>
+    <dimen name="activity_vertical_padding">12dp</dimen>
     <dimen name="layout_interval">12dp</dimen>
     <dimen name="layout_minheight">36dp</dimen>
 </resources>

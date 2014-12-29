@@ -22,8 +22,8 @@ public class ListViewAdapter extends BaseAdapter {
 	private ArrayList<Integer> indexs = new ArrayList<Integer>();
 	private Context context;
 	private OnItemClickListener listener;
-	private boolean isEdit = false;
-	Bitmap bitmap;
+	private Bitmap bitmap;
+	private boolean isEdited = false;
 	private Paint paint;
 	{
 		paint = new Paint();
@@ -74,10 +74,6 @@ public class ListViewAdapter extends BaseAdapter {
 		else{
 			view = convertView;
 		}
-		if (position % 2 == 0)
-			view.setBackgroundResource(R.drawable.listview_shape_even);
-		else
-			view.setBackgroundResource(R.drawable.listview_shape_odd);
 		Bitmap currentBitmap = bitmap.copy(bitmap.getConfig(), true);
     	Canvas canvas = new Canvas(currentBitmap);
     	canvas.drawText(String.valueOf(indexs.get(position) + 1), canvas.getWidth()/2, 
@@ -102,7 +98,7 @@ public class ListViewAdapter extends BaseAdapter {
 				datas.remove(position);
 				indexs.remove(position);
 				ListViewAdapter.this.notifyDataSetChanged();
-				setEdit(true);
+				setEdited(true);
 			}
 		});
     	view.setOnClickListener(new OnClickListener() {
@@ -116,12 +112,12 @@ public class ListViewAdapter extends BaseAdapter {
 		return view;
 	}
 
-	public boolean isEdit() {
-		return isEdit;
+	public boolean isEdited() {
+		return isEdited;
 	}
 
-	public void setEdit(boolean isEdit) {
-		this.isEdit = isEdit;
+	public void setEdited(boolean isEdit) {
+		this.isEdited = isEdit;
 	}
 	
 	public OnItemClickListener getListener() {

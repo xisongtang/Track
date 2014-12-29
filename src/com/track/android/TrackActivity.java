@@ -208,6 +208,8 @@ public class TrackActivity extends Activity {
 		else{
 			setResult(RESULT_CANCELED);
 		}
-		super.onBackPressed();
+		finish();
+		overridePendingTransition(android.R.anim.slide_in_left,
+				android.R.anim.slide_out_right);
 	}
 }

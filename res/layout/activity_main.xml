@@ -58,9 +58,9 @@
 	        android:layout_centerVertical="true"
 	        android:layout_toRightOf="@+id/add_button"
 	        android:contentDescription="@string/delete_button_name"
-	        android:onClick="onDeleteButtonClick"
+	        android:onClick="onListButtonClick"
 	        android:scaleType="centerInside"
-	        android:src="@drawable/minus"
+	        android:src="@drawable/list"
 	        android:color="@drawable/button_text" />
 
 	    <ImageButton
@@ -103,23 +103,5 @@
 	    </LinearLayout>
 	</LinearLayout>
 
-	<LinearLayout
-	    android:id="@+id/listview_layout"
-	    android:layout_width="230dp"
-	    android:paddingLeft="1dp"
-	    android:paddingRight="1dp"
-	    android:visibility="gone"
-	    android:alpha="0.85"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentLeft="true"
-	    android:layout_below="@+id/main_title"
-	    android:background="@drawable/listview_layout_shape" >
-	    
-		<ListView
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content"
-		    android:id="@+id/listview"
-		  >
-		</ListView>
-	</LinearLayout>
+	
 </RelativeLayout>

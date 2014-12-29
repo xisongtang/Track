@@ -52,6 +52,9 @@ public class SettingActivity extends Activity {
         case SettingData.INTERVAL_HOUR:
         	intervalPosition = 3;
         	break;
+        case SettingData.INTERVAL_TWOHOURS:
+        	intervalPosition = 4;
+        	break;
         default:
         	intervalPosition = 0;
         	break;
@@ -112,6 +115,9 @@ public class SettingActivity extends Activity {
         	break;
         case 3:
         	interval = SettingData.INTERVAL_HOUR;
+        	break;
+        case 4:
+        	interval = SettingData.INTERVAL_TWOHOURS;
         	break;
         default:
         	interval = SettingData.INTERVAL_HALFHOUR;

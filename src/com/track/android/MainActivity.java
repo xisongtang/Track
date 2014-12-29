@@ -26,7 +26,6 @@ import com.baidu.mapapi.search.geocode.GeoCoder;
 import com.baidu.mapapi.search.geocode.OnGetGeoCoderResultListener;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeOption;
 import com.baidu.mapapi.search.geocode.ReverseGeoCodeResult;
-import com.track.android.ListViewAdapter.OnItemClickListener;
 import com.track.android.R;
 
 import android.app.Activity;
@@ -48,12 +47,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.animation.AlphaAnimation;
-import android.view.animation.AnimationUtils;
-import android.view.animation.TranslateAnimation;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,19 +58,14 @@ public class MainActivity extends Activity {
 	int displayWidth;
 	private final int DURATION = 500;
 	private LinearLayout menu;
-	private LinearLayout listViewLayout;
 	private MapView mapView;
 	private BaiduMap map;
-	private ListView listView;
-	private ListViewAdapter listViewAdapter;
 	private ArrayList<Overlay> overlays = new ArrayList<Overlay>();
 	private AlphaAnimation disappearAlpha;
 	private AlphaAnimation appearAlpha;
 	private Bitmap bitmap;
 	private TextView dateTextView;
 	private DatePicker datePicker;
-	private TranslateAnimation appearTranslate;
-	private TranslateAnimation disappearTranslate;
 	private Paint paint;
 	{
 		paint = new Paint();
@@ -109,6 +100,8 @@ public class MainActivity extends Activity {
 				intent.putExtra(TrackData.PLACENAME_STRING, resultPlaceName);
 				intent.setClass(getBaseContext(), CreateTrackActivity.class);
 				startActivityForResult(intent, CreateTrackActivity.RESULT_CODE);
+				overridePendingTransition(R.anim.slide_in_right,
+						R.anim.slide_out_left);
 			}
 			else if (type == DRAG_TRIGGER){
 				DatabaseHelper db = new DatabaseHelper(getBaseContext());
@@ -135,20 +128,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         startService(new Intent(getApplicationContext(), TrackService.class));
         dateTextView = (TextView)findViewById(R.id.date_text_view);
-        listView = (ListView)findViewById(R.id.listview);
-        listViewAdapter = new ListViewAdapter(getBaseContext());
-        listViewAdapter.setListener(new OnItemClickListener() {
-			
-			@Override
-			public void onClick(View v, TrackData data) {
-				Intent intent = new Intent();
-				intent.putExtra("data", data);
-				intent.setClass(getBaseContext(), TrackActivity.class);
-				startActivityForResult(intent, TrackActivity.TRACK_RESULT_CODE);
-			}
-		});
-        listView.setAdapter(listViewAdapter);
-        listViewLayout = (LinearLayout)findViewById(R.id.listview_layout);
+        
         mapView = (MapView)findViewById(R.id.mapview);
         map = mapView.getMap();
         menu = (LinearLayout)findViewById(R.id.menu);
@@ -157,10 +137,6 @@ public class MainActivity extends Activity {
     			R.drawable.overlay);
         disappearAlpha = new AlphaAnimation(0.8f, 0);
         appearAlpha = new AlphaAnimation(0, 0.8f);
-        appearTranslate = (TranslateAnimation) AnimationUtils.loadAnimation(
-        		getBaseContext(), R.anim.listview_layout_appear);
-        disappearTranslate = (TranslateAnimation) AnimationUtils.loadAnimation(
-        		getBaseContext(), R.anim.listview_layout_disappear);
         disappearAlpha.setDuration(DURATION);
         appearAlpha.setDuration(DURATION);
         map.setOnMapLongClickListener(longClickListener);
@@ -187,8 +163,7 @@ public class MainActivity extends Activity {
 			@Override
 			protected void onPostExecute(ArrayList<TrackData> datas) {
 		    	MapStatusUpdate update;
-		    	listViewAdapter.setDatas(datas);
-				if (datas.size() == 0){
+		    	if (datas.size() == 0){
 					map.clear();
 					update = MapStatusUpdateFactory.newLatLng(new LatLng(
 							TrackData.DEFAULT_LATITUDE, TrackData.DEFAULT_LONGITUDE));
@@ -224,13 +199,12 @@ public class MainActivity extends Activity {
 			}
 		}.execute(date);
     }
-    private boolean isListViewLayoutShowing = false;
-    public void onDeleteButtonClick(View v){
-    	if (!isListViewLayoutShowing){
-	    	isListViewLayoutShowing = true;
-	    	listViewLayout.setVisibility(View.VISIBLE);
-	    	listViewLayout.startAnimation(appearTranslate);
-    	}
+    public void onListButtonClick(View v){
+    	Intent intent = new Intent(getBaseContext(), TrackListActivity.class);
+    	intent.putExtra("date", dateTextView.getText().toString());
+    	startActivityForResult(intent, TrackListActivity.TRACKLIST_RESULT_CODE);
+    	overridePendingTransition(R.anim.list_activity_appear,
+				android.R.anim.fade_out);
     }
     public void onAddButtonClick(View v){
     	Toast.makeText(getBaseContext(), "长按地图添加新的踪迹", Toast.LENGTH_LONG).show();
@@ -286,19 +260,6 @@ public class MainActivity extends Activity {
 		
 		@Override
 		public void onMapClick(LatLng arg0) {
-			if (isListViewLayoutShowing){
-				isListViewLayoutShowing = false;
-				listViewLayout.startAnimation(disappearTranslate);
-				listViewLayout.setVisibility(View.GONE);
-				if (listViewAdapter.isEdit()){
-					map.clear();
-					String date = datePicker.getYear() + "-" 
-		    				+ (datePicker.getMonth() + 1) + "-"
-		    				+ datePicker.getDayOfMonth();
-					showOverlays(date);
-					listViewAdapter.setEdit(false);
-				}
-			}
 			map.hideInfoWindow();
 		}
 	};
@@ -317,6 +278,9 @@ public class MainActivity extends Activity {
 					intent.putExtra("data", marker.getExtraInfo().getSerializable("data"));
 					intent.setClass(getBaseContext(), TrackActivity.class);
 					startActivityForResult(intent, TrackActivity.TRACK_RESULT_CODE);
+
+					overridePendingTransition(R.anim.slide_in_right,
+							R.anim.slide_out_left);
 				}
 			});
 			InfoWindow infoWindow = new InfoWindow(view, marker.getPosition(), -47);
@@ -394,6 +358,9 @@ public class MainActivity extends Activity {
 				map.clear();
 				showOverlays(tdata.getDate());
 			}
+		}else if (requestCode == TrackListActivity.TRACKLIST_RESULT_CODE){
+			map.clear();
+			showOverlays(dateTextView.getText().toString());
 		}
 	}
     @Override

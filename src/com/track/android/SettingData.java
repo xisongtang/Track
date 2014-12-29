@@ -22,6 +22,7 @@ public class SettingData {
 	public static final int INTERVAL_TWENTY = 20;
 	public static final int INTERVAL_HALFHOUR = 30;
 	public static final int INTERVAL_HOUR = 60;
+	public static final int INTERVAL_TWOHOURS = 120;
 	private static String SETTING_FILENAME = "config.ini";
 	
 	public SettingData(Context context) {
